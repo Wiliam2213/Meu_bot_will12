@@ -2,6 +2,7 @@ import { ChatInterface } from "@/components/ChatInterface";
 import { SalesChart } from "@/components/SalesChart";
 import { StatsCards } from "@/components/StatsCards";
 import { SalesTable } from "@/components/SalesTable";
+import { SpreadsheetUpload } from "@/components/SpreadsheetUpload";
 import { BarChart3 } from "lucide-react";
 
 const Index = () => {
@@ -30,8 +31,11 @@ const Index = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-6 h-[calc(100vh-8rem)]">
-              <ChatInterface />
+            <div className="sticky top-6 space-y-6">
+              <SpreadsheetUpload />
+              <div className="h-[calc(100vh-20rem)]">
+                <ChatInterface />
+              </div>
             </div>
           </div>
         </div>

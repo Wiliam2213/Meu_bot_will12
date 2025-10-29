@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, Bot, User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useData } from "@/contexts/DataContext";
+import { toast } from "@/hooks/use-toast";
 
 interface Message {
   role: "user" | "assistant";
@@ -11,6 +13,7 @@ interface Message {
 }
 
 export const ChatInterface = () => {
+  const { salesData } = useData();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
@@ -35,15 +38,46 @@ export const ChatInterface = () => {
     setInput("");
     setIsLoading(true);
 
-    // Simulate AI response - will be replaced with actual Gemini API call
-    setTimeout(() => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: [...messages, userMessage].map(m => ({
+              role: m.role,
+              content: m.content
+            })),
+            salesData: salesData
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Erro ao comunicar com o assistente');
+      }
+
+      const data = await response.json();
       const assistantMessage: Message = {
         role: "assistant",
-        content: "Estou processando sua solicitação sobre os dados de vendas. Em breve, esta funcionalidade estará conectada à API Gemini para fornecer análises reais dos dados de vendas mensais."
+        content: data.message
       };
+      
       setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Erro:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível obter resposta do assistente. Tente novamente.",
+        variant: "destructive",
+      });
+      setMessages(prev => prev.slice(0, -1));
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
