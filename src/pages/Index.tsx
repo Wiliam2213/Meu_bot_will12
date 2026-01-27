@@ -1,42 +1,106 @@
+import { useState } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { SalesChart } from "@/components/SalesChart";
 import { StatsCards } from "@/components/StatsCards";
 import { SalesTable } from "@/components/SalesTable";
 import { SpreadsheetUpload } from "@/components/SpreadsheetUpload";
-import { BarChart3 } from "lucide-react";
+import { AppSidebar } from "@/components/AppSidebar";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
+  const [activeSection, setActiveSection] = useState("dashboard");
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Alpha Insights</h1>
-              <p className="text-sm text-muted-foreground">Dashboard Analítico de Vendas</p>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <AppSidebar 
+        activeSection={activeSection} 
+        onSectionChange={setActiveSection} 
+      />
 
-      <main className="container mx-auto px-4 py-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <StatsCards />
-            <SalesChart />
-            <SalesTable />
-          </div>
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        <div className="p-6 lg:p-8 space-y-6">
+          {/* Page Header */}
+          <header className="flex flex-col gap-1">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              {activeSection === "dashboard" && "Dashboard"}
+              {activeSection === "analytics" && "Análises"}
+              {activeSection === "charts" && "Gráficos"}
+              {activeSection === "data" && "Dados"}
+              {activeSection === "import" && "Importar Dados"}
+              {activeSection === "spreadsheets" && "Planilhas"}
+              {activeSection === "chat" && "Chat IA"}
+            </h1>
+            <p className="text-muted-foreground">
+              {activeSection === "dashboard" && "Visão geral do desempenho de vendas"}
+              {activeSection === "analytics" && "Análise detalhada de métricas"}
+              {activeSection === "charts" && "Visualização gráfica de dados"}
+              {activeSection === "data" && "Explore seus dados de vendas"}
+              {activeSection === "import" && "Importe planilhas CSV para análise"}
+              {activeSection === "spreadsheets" && "Gerencie suas planilhas importadas"}
+              {activeSection === "chat" && "Converse com a IA sobre seus dados"}
+            </p>
+          </header>
 
-          <div className="lg:col-span-1">
-            <div className="sticky top-6 space-y-6">
-              <SpreadsheetUpload />
-              <div className="h-[calc(100vh-20rem)]">
-                <ChatInterface />
+          {/* Content based on active section */}
+          <div className={cn(
+            "grid gap-6",
+            (activeSection === "dashboard" || activeSection === "analytics") && "lg:grid-cols-3"
+          )}>
+            {/* Dashboard View */}
+            {(activeSection === "dashboard" || activeSection === "analytics") && (
+              <>
+                <div className="lg:col-span-2 space-y-6">
+                  <StatsCards />
+                  <SalesChart />
+                  <SalesTable />
+                </div>
+                <div className="lg:col-span-1 space-y-6">
+                  <SpreadsheetUpload />
+                  <div className="h-[600px]">
+                    <ChatInterface />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Charts View */}
+            {activeSection === "charts" && (
+              <div className="col-span-full space-y-6">
+                <SalesChart />
+                <StatsCards />
               </div>
-            </div>
+            )}
+
+            {/* Data View */}
+            {activeSection === "data" && (
+              <div className="col-span-full space-y-6">
+                <StatsCards />
+                <SalesTable />
+              </div>
+            )}
+
+            {/* Import View */}
+            {(activeSection === "import" || activeSection === "spreadsheets") && (
+              <div className="col-span-full max-w-2xl space-y-6">
+                <SpreadsheetUpload />
+                <SalesTable />
+              </div>
+            )}
+
+            {/* Chat View */}
+            {activeSection === "chat" && (
+              <div className="col-span-full grid gap-6 lg:grid-cols-2">
+                <div className="h-[700px]">
+                  <ChatInterface />
+                </div>
+                <div className="space-y-6">
+                  <SpreadsheetUpload />
+                  <StatsCards />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
